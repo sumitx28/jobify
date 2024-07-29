@@ -9,6 +9,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
+import cors from 'cors';
 import helmet from 'helmet';
 import xss from 'xss-clean';
 import mongoSanitize from 'express-mongo-sanitize';
@@ -34,7 +35,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // only when ready to deploy
 app.use(express.static(path.resolve(__dirname, './client/build')));
-
+app.use(
+  cors({
+    origin: 'http://localhost:3001',
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(helmet());
 app.use(xss());
@@ -52,7 +58,7 @@ app.get('*', (req, res) => {
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3002;
 
 const start = async () => {
   try {
