@@ -67,12 +67,15 @@ const initialState = {
 
 const AppContext = React.createContext();
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   // axios
   const authFetch = axios.create({
-    baseURL: '/api/v1',
+    baseURL: BACKEND_URL + '/api/v1',
+    withCredentials: true,
   });
   // request
 
@@ -83,7 +86,7 @@ const AppProvider = ({ children }) => {
       return response;
     },
     (error) => {
-      // console.log(error.response)
+      console.log(error.response);
       if (error.response.status === 401) {
         logoutUser();
       }
@@ -106,8 +109,11 @@ const AppProvider = ({ children }) => {
     dispatch({ type: SETUP_USER_BEGIN });
     try {
       const { data } = await axios.post(
-        `/api/v1/auth/${endPoint}`,
-        currentUser
+        BACKEND_URL + `/api/v1/auth/${endPoint}`,
+        currentUser,
+        {
+          withCredentials: true,
+        }
       );
 
       const { user, location } = data;
@@ -249,7 +255,7 @@ const AppProvider = ({ children }) => {
   const showStats = async () => {
     dispatch({ type: SHOW_STATS_BEGIN });
     try {
-      const { data } = await authFetch('/jobs/stats');
+      const { data } = await authFetch(`/jobs/stats`);
       dispatch({
         type: SHOW_STATS_SUCCESS,
         payload: {
@@ -272,7 +278,7 @@ const AppProvider = ({ children }) => {
   const getCurrentUser = async () => {
     dispatch({ type: GET_CURRENT_USER_BEGIN });
     try {
-      const { data } = await authFetch('/auth/getCurrentUser');
+      const { data } = await authFetch(`/auth/getCurrentUser`);
       const { user, location } = data;
 
       dispatch({
